@@ -1,39 +1,56 @@
 const express = require('express')
 const promotionRouter = express.Router()
+const Promotions = require('../models/promotions')
 
+// routers for /promotions
 promotionRouter.route('/')
-.get((req, res, next) => {
-    res.send('Will give back promotions')
-})
-.post((req, res, next) => {
-    res.send(`Will post new promotion with name: ${req.body.foo}
-            and content ${req.body.bar}`)
-})
-.put((req, res, next) => {
-    res.send('/promotions do not support PUT')
-})
-.delete((req, res, next) => {
-    res.send('Will delete all promotions')
-})
-
+    .get((req, res, next) => {
+        Promotions.find({})
+            .then(promos => {
+                res.status(200).json(promos)
+            })
+            .catch(next)
+        
+    })
+    .post((req, res, next) => {
+        const newPromo = req.body
+        Promotions.create(newPromo)
+            .then(doc => {
+                res.status(200).json(doc)
+            }, next)
+    })
+    .put((req, res, next) => {
+        throw new Error('PUT not supported')
+    })
+    .delete((req, res, next) => {
+        Promotions.deleteMany({})
+            .then(result => res.status(200).send(result))
+            .catch(next)
+    })
+// routers for /:promoId
 promotionRouter.route('/:promoId')
-.all((req, res, next) => {
-    res.statusCode = 200
-    res.setHeader('Content-Type', 'text/html')
-    next()
-})
-.get((req, res, next) => {
-    res.send(`will get promotion ${req.params.promoId}`)
-})
-.post((req, res, next) => {
-    res.send(`/promotions/:promoId not support POST`)
-})
-.put((req, res, next) => {
-    res.send(`will update promotion ${req.params.promoId} with content ${req.body.foo} and ${req.body.bar}`)
-})
-.delete((req, res, next) => {
-    res.send(`will delete promotion ${req.params.promoId}`)
-})
+    .post((req, res, next) => {
+        throw new Error('POST not supported')
+    })
+    .all((req, res, next) => {
+        Promotions.findById(req.params.promoId)
+            .then(promo => {
+                req.promo = promo
+                next()
+            }, next)
+        
+    })
+    .get((req, res, next) => {
+        res.json(req.promo)
+    })
+    .put((req, res, next) => {
+        Promotions.findOneAndUpdate({_id: req.params.promoId}, req.body, {new: true})
+            .then(promo => res.status(200).json(promo), next)
+    })
+    .delete((req, res, next) => {
+        Promotions.deleteOne({_id: req.params.promoId})
+            .then(result => res.status(200).json(result))
+    })
 
 
 module.exports = promotionRouter
