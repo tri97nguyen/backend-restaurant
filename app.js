@@ -3,9 +3,10 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-
+var auth = require('./middlewares/auth')
 var mongoose = require('mongoose')
-
+var session = require('express-session')
+var FileStore = require('session-file-store')(session)
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
@@ -32,7 +33,17 @@ app.set('view engine', 'jade');
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
+// app.use(cookieParser("somebodythatiusedtoknow"))
+app.use(session({
+  name: "session-id",
+  store: new FileStore(),
+  cookie: { secure: false },
+  secret: "somebodythatiusedtoknow",
+  saveUninitialized: false,
+  resave: false
+}))
+app.use(auth)
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
