@@ -8,23 +8,16 @@ var mongoose = require('mongoose')
 var session = require('express-session')
 var FileStore = require('session-file-store')(session)
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+var usersRouter = require('./routes/usersRouter');
 
 var app = express();
 
 // connecting to mongoDB
 const url = 'mongodb://127.0.0.1:27017/confusion'
-
-
-
 mongoose.connect(url)
   .then(db => {
       console.log('successfully connect to server')
   })
-
-
-
-
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -35,19 +28,20 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 // app.use(cookieParser("somebodythatiusedtoknow"))
 app.use(session({
-  name: "session-id",
+  name: "lalaland",
   store: new FileStore(),
   cookie: { secure: false },
   secret: "somebodythatiusedtoknow",
   saveUninitialized: false,
   resave: false
 }))
-app.use(auth)
-
-app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+
+app.use(auth)
+app.use(express.static(path.join(__dirname, 'public')));
+
 app.use('/dishes', require('./routes/dishesRouter'))
 app.use('/promotions', require('./routes/promotionsRouter'))
 app.use('/leaders', require('./routes/leadersRouter'))
