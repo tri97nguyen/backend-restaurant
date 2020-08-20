@@ -9,7 +9,8 @@ var session = require('express-session')
 var FileStore = require('session-file-store')(session)
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/usersRouter');
-
+var passport = require('passport')
+var passportConfig = require('./middlewares/passportConfig')
 var app = express();
 
 // connecting to mongoDB
@@ -23,6 +24,7 @@ mongoose.connect(url)
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
+// configuration
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -35,6 +37,8 @@ app.use(session({
   saveUninitialized: false,
   resave: false
 }))
+app.use(passport.initialize())
+app.use(passport.session())
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
@@ -42,7 +46,7 @@ app.use('/users', usersRouter);
 app.use(auth)
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/dishes', require('./routes/dishesRouter'))
+app.use('/dishes', passport.authenticate('local') ,require('./routes/dishesRouter'))
 app.use('/promotions', require('./routes/promotionsRouter'))
 app.use('/leaders', require('./routes/leadersRouter'))
 
