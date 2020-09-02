@@ -6,7 +6,7 @@ var Currency = mongoose.Types.Currency
 const commentSchema = Schema({
     rating: {type: Number, required: true},
     comment: {type: String, required: true},
-    author: {type: String, requried: true}
+    author: {type: mongoose.Types.ObjectId, ref: 'User'}
 }, {
     timestamps: true
 })

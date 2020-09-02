@@ -1,7 +1,7 @@
 const express = require('express')
 const leaderRouter = express.Router()
 const Leaders = require('../models/leaders')
-
+const auth = require('../middlewares/auth')
 
 leaderRouter.route('/')
     .get((req, res, next) => {
@@ -12,6 +12,7 @@ leaderRouter.route('/')
             .catch(next)
         
     })
+    .all(auth.jwtAuthenticate, auth.verifyAdmin)
     .post((req, res, next) => {
         const newLeader = req.body
         Leaders.create(newLeader)
@@ -29,9 +30,9 @@ leaderRouter.route('/')
     })
 
 leaderRouter.route('/:leaderId')
-    .post((req, res, next) => {
-        throw new Error('POST not supported')
-    })
+    
+
+    
     .all((req, res, next) => {
         Leaders.findById(req.params.leaderId)
             .then(leader => {
@@ -42,6 +43,10 @@ leaderRouter.route('/:leaderId')
     })
     .get((req, res, next) => {
         res.json(req.leader)
+    })
+    .all(auth.jwtAuthenticate, auth.verifyAdmin)
+    .post((req, res, next) => {
+        throw new Error('POST not supported')
     })
     .put((req, res, next) => {
         Leaders.findOneAndUpdate({_id: req.params.leaderId}, req.body, {new: true})

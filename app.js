@@ -5,12 +5,11 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var auth = require('./middlewares/auth')
 var mongoose = require('mongoose')
-var session = require('express-session')
-var FileStore = require('session-file-store')(session)
+
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/usersRouter');
 var passport = require('passport')
-var passportConfig = require('./middlewares/passportConfig')
+
 var app = express();
 
 // connecting to mongoDB
@@ -29,24 +28,29 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 // app.use(cookieParser("somebodythatiusedtoknow"))
-app.use(session({
-  name: "lalaland",
-  store: new FileStore(),
-  cookie: { secure: false },
-  secret: "somebodythatiusedtoknow",
-  saveUninitialized: false,
-  resave: false
-}))
+
+
 app.use(passport.initialize())
-app.use(passport.session())
+
+// redirect all routes to HTTPS
+// app.all('*', (req, res, next) => {
+//   if (req.secure) return next()
+//   else {
+//     res.redirect(307, `https://${req.hostname}:${app.get('secPort')}${req.url}`)
+//     console.log(`redirect to https://${req.hostname}:${app.get('secPort')}${req.url}`)
+//   }
+// })
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use('/failure', (req, res, next) => {
+  res.send('fail to authenticate')
+})
+app.use('/favorites', require('./routes/favorites'))
 
-app.use(auth)
 app.use(express.static(path.join(__dirname, 'public')));
-
-app.use('/dishes', passport.authenticate('local') ,require('./routes/dishesRouter'))
+app.use('/upload', require('./routes/upload'))
+app.use('/dishes' ,require('./routes/dishesRouter'))
 app.use('/promotions', require('./routes/promotionsRouter'))
 app.use('/leaders', require('./routes/leadersRouter'))
 
