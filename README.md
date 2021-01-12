@@ -1,8 +1,10 @@
 # backend-restaurant
 
-This is only a backend application. It still has not connected to the front end at `https://github.com/tri97nguyen/restaurant-frontend` yet.
+This backend application has been supplanted by Google FireStore- a fancy new toy of hipster JS devs. 
 
-The application provides a set of API to serve data to the client.
+To view the frontend powered by the **a-hem** Firestore, please click [here](https://codesandbox.io/s/wizardly-forest-tivl1?file=/src/components/MainComponent.js)
+
+The legacy backend application provides a set of API to serve data to the client.
 
 \
 
